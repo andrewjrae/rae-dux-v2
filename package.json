@@ -1,0 +1,8 @@
+{
+    "scripts": {
+        "gen": "npm exec ergogen rae-dux-v2.yaml"
+    },
+    "dependencies": {
+        "ergogen": "github:ergogen/ergogen"
+    }
+}

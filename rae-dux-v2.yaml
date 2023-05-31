@@ -1,0 +1,271 @@
+units:
+  kx: cx
+  ky: cy
+  px: 2
+  py: 2
+points:
+  zones:
+    matrix:
+      anchor:
+        shift: [50, 50]
+      key:
+        padding: ky
+      columns:
+        pinky:
+          key:
+            spread: 18
+            splay: 17
+            origin: [0, -ky]
+            bind: [0.1, 0.5 * kx, 0.1, 0.1]
+          rows:
+            bottom:
+              column_net: P6
+            home:
+              column_net: P5
+            top:
+              column_net: P4
+        ring:
+          key:
+            spread: 18
+            stagger: ky
+            splay: -7
+            origin: [0, -ky]
+            bind: [0.1, 0.5 * kx, 0.1, 0.1]
+          rows:
+            bottom:
+              column_net: P3
+            home:
+              column_net: P2
+            top:
+              column_net: P0
+        home:
+          key:
+            spread: 18
+            stagger: ky/3
+            splay: -5
+            origin: [0, -ky]
+            bind: [0.1, 0.1, 0.5 * kx, 0.1]
+            shift: [0.2, 0]
+          rows:
+            bottom:
+              column_net: P1
+            home:
+              column_net: P18
+            top:
+              column_net: P15
+        index:
+          key:
+            spread: 18
+            stagger: -ky/3
+            splay: -5
+            origin: [0, -ky]
+            bind: [0.1, 0.1, 0.5 * kx, 0.5 * kx]
+          rows:
+            bottom:
+              column_net: P14
+            home:
+              column_net: P16
+            top:
+              column_net: P10
+        inner:
+          key:
+            spread: 19
+            stagger: -ky/6
+            origin: [0, -ky]
+            bind: [0.1, 0.1, 0.1, 0.5 * kx]
+          rows:
+            bottom:
+              column_net: P19
+            home:
+              column_net: P20
+            top:
+              column_net: P21
+    thumbfan:
+      anchor:
+        ref: matrix_inner_bottom
+        shift: [-1.10 * kx, -1.0 * ky]
+      columns:
+        near:
+          key:
+            spread: kx
+            rotate: -15
+            origin: [-1.5 * kx, -0.5 * ky]
+            column_net: P7
+        home:
+          key:
+            spread: kx
+            rotate: -15
+            origin: [-0.5 * kx, -0.5 * ky]
+            column_net: P8
+        far:
+          key:
+            spread: kx
+            rotate: -15
+            origin: [-0.5 * kx, -0.5 * ky]
+            column_net: P9
+      rows:
+        thumb:
+          row_net: P7
+
+outlines:
+  raw:
+    - what: rectangle
+      where: true
+      size: [kx + px, ky + py]
+      corner: px
+  thumbfan_glue:
+    - what: polygon
+      points:
+        - ref: matrix_inner_home
+        - ref: thumbfan_far_thumb
+          # shift: [0.5 kx - 0.5px, 0.5 ky + 0.5 py]
+        - ref: thumbfan_far_thumb
+          # shift: [0.5 kx - 0.5px, -0.5 ky - 0.5 py]
+        - ref: thumbfan_near_thumb
+          # shift: [-0.5 kx - px, -0.5 ky - py]
+        - ref: matrix_pinky_bottom
+          # shift: [0.5 kx - 0.5 py, -0.5 ky - 0.5 py]
+        - ref: matrix_pinky_home
+        - ref: matrix_inner_bottom
+          # shift: [0.5 kx + 0.5px, -0.5 ky + 0.5 py]
+  controller_area:
+    main:
+      what: rectangle
+      adjust:
+        ref:
+          - matrix_inner_top
+        shift: [0, -4.05/2 * ky]
+      size: [30, 76.5]
+      corner: px
+  base_outline:
+    main:
+      what: outline
+      name: raw
+      fillet: 2
+    thumbfan_glue:
+      what: outline
+      name: thumbfan_glue
+      operation: add
+    controller_area:
+      what: outline
+      name: controller_area
+      operation: add
+  pcb:
+    main:
+      what: outline
+      name: base_outline
+      fillet: 15
+  layout_tester:
+    main:
+      what: outline
+      name: pcb
+    keys:
+      what: rectangle
+      where: true
+      size: [kx - 0.01, ky - 0.01]
+      corner: px
+      bound: false
+      operation: subtract
+
+pcbs:
+  board:
+    outlines:
+      edge:
+        outline: pcb
+        layer: Edge.Cuts
+        # TODO there's a way to add stuff to the silkscreen layer
+    footprints:
+      choc_hotswap:
+        where: true
+        what: choc
+        params:
+          from: "{{column_net}}"
+          to: GND
+          keycaps: true
+          reverse: true
+          hotswap: true
+      choc:
+        where: true
+        what: choc
+        adjust:
+          rotate: 180
+        params:
+          from: "{{column_net}}"
+          to: GND
+          keycaps: true
+          reverse: true
+      mcu_l:
+        what: promicro
+        params:
+          orientation: down
+          # batteryPins: true
+        adjust:
+          ref:
+            - matrix_inner_top
+          shift: [20, -11]
+          rotate: 270
+      slider_l:
+        what: slider
+        adjust:
+          ref:
+            - matrix_inner_bottom
+          shift: [28, 0]
+          rotate: 270
+        params:
+          side: F
+          from: Braw
+          to: Bplus
+      slider_r:
+        what: slider
+        adjust:
+          ref:
+            - matrix_inner_bottom
+          shift: [28, 0]
+          rotate: 270
+        params:
+          side: B
+          from: Braw
+          to: Bplus
+      # jst_bat:
+      #   what: bat
+      #   adjust:
+      #     ref:
+      #       - matrix_inner_bottom
+      #     shift: [20, -17.5]
+      #   params:
+      #     reverse: true
+      #   params:
+      #     neg: Bminus
+      #     pos: Braw
+      reset:
+        what: button
+        adjust:
+          ref:
+            - matrix_inner_bottom
+          shift: [27.5, -14]
+          rotate: 270
+        params:
+          # variant: 2_pin_th
+          from: GND
+          to: RST
+      # info_l:
+      #   what: text
+      #   adjust:
+      #     ref:
+      #       - thumbfan_near_thumb
+      #     shift: [ -1.1 kx, 0]
+      #     rotate: 15
+      #   params:
+      #     text: "rae-dux v0.1\\nby ajrae"
+      #     justify: left
+      # info_r:
+      #   what: text
+      #   adjust:
+      #     ref:
+      #       - thumbfan_near_thumb
+      #     shift: [ -1.1 kx, 0]
+      #     rotate: 15
+      #   params:
+      #     layer: B.SilkS
+      #     text: "rae-dux v0.1\\nby ajrae"
+      #     justify: right mirror
