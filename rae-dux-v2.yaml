@@ -13,10 +13,9 @@ points:
       columns:
         pinky:
           key:
-            spread: 18
+            spread: kx
             splay: 17
             origin: [0, -ky]
-            bind: [0.1, 0.5 * kx, 0.1, 0.1]
           rows:
             bottom:
               column_net: P6
@@ -26,11 +25,10 @@ points:
               column_net: P4
         ring:
           key:
-            spread: 18
+            spread: kx
             stagger: ky
             splay: -7
             origin: [0, -ky]
-            bind: [0.1, 0.5 * kx, 0.1, 0.1]
           rows:
             bottom:
               column_net: P3
@@ -40,12 +38,12 @@ points:
               column_net: P0
         home:
           key:
-            spread: 18
+            spread: kx
             stagger: ky/3
-            splay: -5
+            splay: -7
             origin: [0, -ky]
-            bind: [0.1, 0.1, 0.5 * kx, 0.1]
             shift: [0.2, 0]
+            bind: 0
           rows:
             bottom:
               column_net: P1
@@ -55,11 +53,10 @@ points:
               column_net: P15
         index:
           key:
-            spread: 18
+            spread: kx
             stagger: -ky/3
-            splay: -5
+            splay: -3
             origin: [0, -ky]
-            bind: [0.1, 0.1, 0.5 * kx, 0.5 * kx]
           rows:
             bottom:
               column_net: P14
@@ -72,7 +69,6 @@ points:
             spread: 19
             stagger: -ky/6
             origin: [0, -ky]
-            bind: [0.1, 0.1, 0.1, 0.5 * kx]
           rows:
             bottom:
               column_net: P19
@@ -83,24 +79,24 @@ points:
     thumbfan:
       anchor:
         ref: matrix_inner_bottom
-        shift: [-1.10 * kx, -1.0 * ky]
+        shift: [-0.25 * kx, -1.4 * ky]
       columns:
         near:
           key:
             spread: kx
-            rotate: -15
+            splay: -5
             origin: [-1.5 * kx, -0.5 * ky]
             column_net: P7
         home:
           key:
             spread: kx
-            rotate: -15
+            splay: -8
             origin: [-0.5 * kx, -0.5 * ky]
             column_net: P8
         far:
           key:
             spread: kx
-            rotate: -15
+            splay: -20
             origin: [-0.5 * kx, -0.5 * ky]
             column_net: P9
       rows:
@@ -113,30 +109,43 @@ outlines:
       where: true
       size: [kx + px, ky + py]
       corner: px
+      bound: true
   thumbfan_glue:
     - what: polygon
       points:
         - ref: matrix_inner_home
         - ref: thumbfan_far_thumb
-          # shift: [0.5 kx - 0.5px, 0.5 ky + 0.5 py]
+          shift: [0.5 kx - 0.5px, 0.5 ky + 0.5 py]
         - ref: thumbfan_far_thumb
-          # shift: [0.5 kx - 0.5px, -0.5 ky - 0.5 py]
+          shift: [0.5 kx - 0.5px, -0.5 ky - 0.5 py]
         - ref: thumbfan_near_thumb
-          # shift: [-0.5 kx - px, -0.5 ky - py]
+          shift: [-0.5 kx - px, -0.5 ky - py]
         - ref: matrix_pinky_bottom
-          # shift: [0.5 kx - 0.5 py, -0.5 ky - 0.5 py]
+          shift: [0.5 kx - 0.5 py, -0.5 ky - 0.5 py]
         - ref: matrix_pinky_home
         - ref: matrix_inner_bottom
-          # shift: [0.5 kx + 0.5px, -0.5 ky + 0.5 py]
+          shift: [0.5 kx + 0.5px, 0.5 ky + 0.5 py]
   controller_area:
     main:
       what: rectangle
       adjust:
         ref:
           - matrix_inner_top
-        shift: [0, -4.05/2 * ky]
+        shift: [30/2, 76.5/2 - 4.05 * ky]
       size: [30, 76.5]
       corner: px
+  circle:
+    main:
+      what: circle
+      radius: 100
+  bbox:
+    main:
+      what: rectangle
+      size: [150, 120]
+      corner: px
+      adjust:
+        ref: matrix_inner_bottom
+        shift: [-25, -3]
   base_outline:
     main:
       what: outline
@@ -150,6 +159,16 @@ outlines:
       what: outline
       name: controller_area
       operation: add
+
+  bbox_sub:
+    main:
+      what: outline
+      name: bbox
+    sub:
+      what: outline
+      name: base_outline
+      operation: subtract
+
   pcb:
     main:
       what: outline
