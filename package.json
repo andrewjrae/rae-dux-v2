@@ -1,8 +1,14 @@
 {
     "scripts": {
-        "gen": "npm exec ergogen rae-dux-v2.yaml"
+        "build": "npm exec ergogen ./ --clear",
+        "watch:build": "nodemon -e yaml -x \"npm run build\" --ignore ergogen/output",
+        "viewpcb": "GTK_THEME=\"\" pcbnew output/pcbs/board.kicad_pcb"
     },
     "dependencies": {
-        "ergogen": "github:ergogen/ergogen"
+        "ergogen": "github:ergogen/ergogen#develop",
+        "nodemon": "^3.0.1"
+    },
+    "nodemonConfig": {
+      "delay": 1500
     }
 }

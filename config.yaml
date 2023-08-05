@@ -1,81 +1,116 @@
+meta:
+  engine: 4.0.4
+  name: rae-dux
+  version: 0.5
+  author: ajrae
+
+presets:
+  defaults:
+    capx: 17
+    capy: 16
+    kx: cx
+    ky: cy
+    px: 2
+    py: 2
+    pinky_splay: 17
+    ring_splay: -7
+    home_splay: -7
+    index_splay: -3
+    top_radius: 123
+    side_radius: 75
+    side_xoff: 0.01
+    side_yoff: 0.52
+
+
+  choc_spaced:
+    $extends: presets.defaults
+
+  mx_spaced:
+    $extends: presets.defaults
+    capx: 18
+    capy: 18
+    kx: 19
+    ky: 19
+    top_radius: 136.5
+    side_radius: 89.5
+    side_xoff: 0.5
+    side_yoff: 0.68
+
 units:
-  kx: cx
-  ky: cy
-  px: 2
-  py: 2
+  $extends: presets.mx_spaced
+
 points:
   zones:
     matrix:
-      anchor:
-        shift: [50, 50]
+      anchor.shift: [150, -180]
       key:
         padding: ky
       columns:
         pinky:
           key:
             spread: kx
-            splay: 17
+            splay: pinky_splay
             origin: [0, -ky]
           rows:
             bottom:
-              column_net: P6
+              column_net: P15
             home:
-              column_net: P5
+              column_net: P18
             top:
-              column_net: P4
+              column_net: P19
         ring:
           key:
             spread: kx
             stagger: ky
-            splay: -7
+            splay: ring_splay
             origin: [0, -ky]
           rows:
             bottom:
-              column_net: P3
+              column_net: P20
             home:
-              column_net: P2
+              column_net: P21
             top:
-              column_net: P0
+              column_net: P3
         home:
           key:
             spread: kx
             stagger: ky/3
-            splay: -7
+            splay: home_splay
             origin: [0, -ky]
             shift: [0.2, 0]
             bind: 0
           rows:
             bottom:
-              column_net: P1
+              column_net: P4
             home:
-              column_net: P18
+              column_net: P5
             top:
-              column_net: P15
+              column_net: P6
         index:
           key:
             spread: kx
             stagger: -ky/3
-            splay: -3
+            splay: index_splay
             origin: [0, -ky]
           rows:
             bottom:
-              column_net: P14
+              column_net: P7
             home:
-              column_net: P16
+              column_net: P8
             top:
-              column_net: P10
+              column_net: P9
         inner:
           key:
-            spread: 19
+            spread: kx
             stagger: -ky/6
             origin: [0, -ky]
           rows:
             bottom:
-              column_net: P19
+              column_net: P1
             home:
-              column_net: P20
+              column_net: P0
             top:
-              column_net: P21
+              column_net: P2
     thumbfan:
       anchor:
         ref: matrix_inner_bottom
@@ -86,19 +121,19 @@ points:
             spread: kx
             splay: -5
             origin: [-1.5 * kx, -0.5 * ky]
-            column_net: P7
+            column_net: P14
         home:
           key:
             spread: kx
             splay: -8
             origin: [-0.5 * kx, -0.5 * ky]
-            column_net: P8
+            column_net: P16
         far:
           key:
             spread: kx
             splay: -20
             origin: [-0.5 * kx, -0.5 * ky]
-            column_net: P9
+            column_net: P10
       rows:
         thumb:
           row_net: P7
@@ -131,21 +166,41 @@ outlines:
       adjust:
         ref:
           - matrix_inner_top
-        shift: [30/2, 76.5/2 - 4.05 * ky]
+        shift: [30/2, -76.5/2 + 0.4 ky]
       size: [30, 76.5]
       corner: px
-  circle:
-    main:
+  circles:
+    top:
       what: circle
-      radius: 100
-  bbox:
-    main:
-      what: rectangle
-      size: [150, 120]
-      corner: px
       adjust:
-        ref: matrix_inner_bottom
-        shift: [-25, -3]
+        ref:
+          - matrix_index_bottom
+        shift: [-0.45 kx, -4.25 ky]
+      radius: top_radius
+    side:
+      what: circle
+      operation: intersect
+      adjust:
+        ref:
+          - matrix_index_bottom
+        shift: [side_xoff * kx, side_yoff ky]
+      radius: side_radius
+    bottom:
+      what: circle
+      operation: subtract
+      adjust:
+        ref:
+          - matrix_index_bottom
+        shift: [-0.5kx, -8.8ky]
+      radius: top_radius
+    cutoff:
+      what: rectangle
+      operation: subtract
+      adjust:
+        ref:
+          - matrix_inner_top
+        shift: [80/2 + 29.999, 0]
+      size: [80, 200]
   base_outline:
     main:
       what: outline
@@ -159,16 +214,10 @@ outlines:
       what: outline
       name: controller_area
       operation: add
-
-  bbox_sub:
-    main:
+    circles:
       what: outline
-      name: bbox
-    sub:
-      what: outline
-      name: base_outline
-      operation: subtract
-
+      name: circles
+      operation: add
   pcb:
     main:
       what: outline
@@ -192,39 +241,35 @@ pcbs:
       edge:
         outline: pcb
         layer: Edge.Cuts
-        # TODO there's a way to add stuff to the silkscreen layer
+      circles:
+        outline: circles
+        layer: Eco1.User
     footprints:
-      choc_hotswap:
-        where: true
-        what: choc
-        params:
-          from: "{{column_net}}"
-          to: GND
-          keycaps: true
-          reverse: true
-          hotswap: true
       choc:
         where: true
-        what: choc
-        adjust:
-          rotate: 180
+        what: custom/choc
         params:
           from: "{{column_net}}"
           to: GND
           keycaps: true
+          hotswap: true
+          hotswap_tht: true
           reverse: true
-      mcu_l:
-        what: promicro
+          traces: true
+          assume_ground_fill: true
+          keycaps_x: capx
+          keycaps_y: capy
+      mcu:
+        what: custom/nice_nano_pretty
         params:
-          orientation: down
-          # batteryPins: true
+          minimal_jumpers: true
         adjust:
           ref:
             - matrix_inner_top
-          shift: [20, -11]
-          rotate: 270
+          shift: [20, -36/2 + 0.4 ky]
+          rotate: 0
       slider_l:
-        what: slider
+        what: custom/slider
         adjust:
           ref:
             - matrix_inner_bottom
@@ -233,9 +278,9 @@ pcbs:
         params:
           side: F
           from: Braw
-          to: Bplus
+          left: RAW
       slider_r:
-        what: slider
+        what: custom/slider
         adjust:
           ref:
             - matrix_inner_bottom
@@ -244,47 +289,46 @@ pcbs:
         params:
           side: B
           from: Braw
-          to: Bplus
-      # jst_bat:
-      #   what: bat
-      #   adjust:
-      #     ref:
-      #       - matrix_inner_bottom
-      #     shift: [20, -17.5]
-      #   params:
-      #     reverse: true
-      #   params:
-      #     neg: Bminus
-      #     pos: Braw
+          right: RAW
+          skip_thruholes: true # avoid overlapping thruholes
+      jst_bat:
+        what: custom/jst_bat
+        adjust:
+          ref:
+            - matrix_inner_bottom
+          shift: [20, -17.5]
+        params:
+          reverse: true
+          pos: Braw
+          neg: GND
       reset:
-        what: button
+        what: custom/reset
         adjust:
           ref:
             - matrix_inner_bottom
           shift: [27.5, -14]
           rotate: 270
         params:
-          # variant: 2_pin_th
           from: GND
           to: RST
-      # info_l:
-      #   what: text
-      #   adjust:
-      #     ref:
-      #       - thumbfan_near_thumb
-      #     shift: [ -1.1 kx, 0]
-      #     rotate: 15
-      #   params:
-      #     text: "rae-dux v0.1\\nby ajrae"
-      #     justify: left
-      # info_r:
-      #   what: text
-      #   adjust:
-      #     ref:
-      #       - thumbfan_near_thumb
-      #     shift: [ -1.1 kx, 0]
-      #     rotate: 15
-      #   params:
-      #     layer: B.SilkS
-      #     text: "rae-dux v0.1\\nby ajrae"
-      #     justify: right mirror
+      info_l:
+        what: custom/text
+        adjust:
+          ref:
+            - thumbfan_near_thumb
+          shift: [ -1.1 kx, -0.4 ky ]
+          rotate: -3.8
+        params:
+          text: "rae-dux v1.0\\nby ajrae"
+          justify: left
+      info_r:
+        what: custom/text
+        adjust:
+          ref:
+            - thumbfan_near_thumb
+          shift: [ -1.1 kx, -0.4 ky]
+          rotate: -3.8
+        params:
+          layer: B.SilkS
+          text: "rae-dux v1.0\\nby ajrae"
+          justify: mirror right

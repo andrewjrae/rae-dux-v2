@@ -5,7 +5,7 @@ with pkgs;
 mkShell {
   buildInputs = [
     nodejs
-    kicad
+    kicad-small
   ];
   shellHook = ''
     npm install
