@@ -16,11 +16,6 @@ presets:
     ring_splay: -7
     home_splay: -7
     index_splay: -3
-    top_radius: 123
-    side_radius: 75
-    side_xoff: 0.01
-    side_yoff: 0.52
-
 
   choc_spaced:
     $extends: presets.defaults
@@ -31,205 +26,219 @@ presets:
     capy: 18
     kx: 19
     ky: 19
-    top_radius: 136.5
-    side_radius: 89.5
-    side_xoff: 0.5
-    side_yoff: 0.68
 
 units:
   $extends: presets.mx_spaced
 
 points:
-  zones:
-    matrix:
-      anchor.shift: [150, -180]
-      key:
-        padding: ky
-      columns:
-        pinky:
-          key:
-            spread: kx
-            splay: pinky_splay
-            origin: [0, -ky]
-          rows:
-            bottom:
-              column_net: P15
-            home:
-              column_net: P18
-            top:
-              column_net: P19
-        ring:
-          key:
-            spread: kx
-            stagger: ky
-            splay: ring_splay
-            origin: [0, -ky]
-          rows:
-            bottom:
-              column_net: P20
-            home:
-              column_net: P21
-            top:
-              column_net: P3
-        home:
-          key:
-            spread: kx
-            stagger: ky/3
-            splay: home_splay
-            origin: [0, -ky]
-            shift: [0.2, 0]
-            bind: 0
-          rows:
-            bottom:
-              column_net: P4
-            home:
-              column_net: P5
-            top:
-              column_net: P6
-        index:
-          key:
-            spread: kx
-            stagger: -ky/3
-            splay: index_splay
-            origin: [0, -ky]
-          rows:
-            bottom:
-              column_net: P7
-            home:
-              column_net: P8
-            top:
-              column_net: P9
-        inner:
-          key:
-            spread: kx
-            stagger: -ky/6
-            origin: [0, -ky]
-          rows:
-            bottom:
-              column_net: P1
-            home:
-              column_net: P0
-            top:
-              column_net: P2
-    thumbfan:
-      anchor:
-        ref: matrix_inner_bottom
-        shift: [-0.25 * kx, -1.4 * ky]
-      columns:
-        near:
-          key:
-            spread: kx
-            splay: -5
-            origin: [-1.5 * kx, -0.5 * ky]
-            column_net: P14
-        home:
-          key:
-            spread: kx
-            splay: -8
-            origin: [-0.5 * kx, -0.5 * ky]
-            column_net: P16
-        far:
-          key:
-            spread: kx
-            splay: -20
-            origin: [-0.5 * kx, -0.5 * ky]
-            column_net: P10
-      rows:
-        thumb:
-          row_net: P7
+  # Actual key points
+  zones.matrix:
+    anchor.shift: [150, -180]
+    key:
+      padding: ky
+    rows:
+      bottom:
+      home:
+      top:
+    columns:
+      pinky.key:
+        spread: kx
+        splay: pinky_splay
+        origin: [0, -ky]
+      ring.key:
+        spread: kx
+        stagger: ky
+        splay: ring_splay
+        origin: [0, -ky]
+      middle.key:
+        spread: kx
+        stagger: ky/3
+        splay: home_splay
+        origin: [0, -ky]
+        shift: [0.2, 0]
+        bind: 0
+      index.key:
+        spread: kx
+        stagger: -ky/3
+        splay: index_splay
+        origin: [0, -ky]
+      inner.key:
+        spread: kx
+        stagger: -ky/6
+        origin: [0, -ky]
+  zones.thumbfan:
+    anchor:
+      ref: matrix_inner_bottom
+      shift: [-0.25 * kx, -1.4 * ky]
+    columns:
+      near.key:
+        spread: kx
+        splay: -5
+        origin: [-1.5 * kx, -0.5 * ky]
+      home.key:
+        spread: kx
+        splay: -8
+        origin: [-0.5 * kx, -0.5 * ky]
+      far.key:
+        spread: kx
+        splay: -20
+        origin: [-0.5 * kx, -0.5 * ky]
+    rows.thumb:
+
+  # Component points
+  zones.mcu:
+    anchor:
+      ref: matrix_inner_top
+      shift: [20, -36/2 + 0.4 ky]
+  zones.reset:
+    anchor:
+      ref: matrix_inner_bottom
+      shift: [27.5, -14]
+  zones.slider:
+    anchor:
+      ref: matrix_inner_bottom
+      shift: [28, 0]
+  zones.jst_bat:
+    anchor:
+      ref: reset
+      shift: [-7.5, -3.25]
+  zones.info:
+    anchor:
+      ref: thumbfan_near_thumb
+      shift: [ -1.1 kx, -0.4 ky ]
+
+  # Outline points
+  zones.outline_top_right:
+    anchor:
+      ref: mcu
+      shift: [10, 36/2]
+  zones.outline_top_left:
+    anchor:
+      ref: matrix_ring_top
+      shift: [-1.6kx, 0.4ky] # this is arbitrary
+  zones.outline_bottom_left:
+    anchor:
+      ref: matrix_pinky_bottom
+      shift: [-0.5kx - 0.2px, -0.5ky - 0.5py]
+  zones.outline_thumb_top:
+    anchor:
+      ref: thumbfan_far_thumb
+      shift: [0.5 kx - 0.5px, 0.5 ky + 0.5 py]
+  zones.outline_thumb_bottom:
+    anchor:
+      ref: thumbfan_far_thumb
+      shift: [0.5 kx - 0.5px, -0.5 ky - 0.5 py]
 
 outlines:
   raw:
     - what: rectangle
-      where: true
+      where:
+        - /matrix_.*/
+        - /thumbfan_.*/
       size: [kx + px, ky + py]
       corner: px
       bound: true
+
   thumbfan_glue:
     - what: polygon
       points:
         - ref: matrix_inner_home
-        - ref: thumbfan_far_thumb
-          shift: [0.5 kx - 0.5px, 0.5 ky + 0.5 py]
-        - ref: thumbfan_far_thumb
-          shift: [0.5 kx - 0.5px, -0.5 ky - 0.5 py]
-        - ref: thumbfan_near_thumb
-          shift: [-0.5 kx - px, -0.5 ky - py]
+        - ref: outline_top_right
+        - ref: reset
+          shift: [0, -4]
+        - ref: outline_thumb_top
+        - ref: outline_thumb_bottom
         - ref: matrix_pinky_bottom
-          shift: [0.5 kx - 0.5 py, -0.5 ky - 0.5 py]
-        - ref: matrix_pinky_home
-        - ref: matrix_inner_bottom
-          shift: [0.5 kx + 0.5px, 0.5 ky + 0.5 py]
-  controller_area:
-    main:
-      what: rectangle
-      adjust:
-        ref:
-          - matrix_inner_top
-        shift: [30/2, -76.5/2 + 0.4 ky]
-      size: [30, 76.5]
-      corner: px
-  circles:
+          shift: [-0.5kx, -0.5ky]
+
+  circles_top:
     top:
       what: circle
       adjust:
-        ref:
-          - matrix_index_bottom
-        shift: [-0.45 kx, -4.25 ky]
-      radius: top_radius
+        aggregate:
+          method: midpoint
+          parts:
+            - ref: outline_top_right
+            - ref: outline_top_left
+            - ref: matrix_middle_top
+              shift: [0, 0.5 ky + py]
+      radius:
+        ref: outline_top_right
     side:
       what: circle
       operation: intersect
       adjust:
-        ref:
-          - matrix_index_bottom
-        shift: [side_xoff * kx, side_yoff ky]
-      radius: side_radius
-    bottom:
-      what: circle
-      operation: subtract
-      adjust:
-        ref:
-          - matrix_index_bottom
-        shift: [-0.5kx, -8.8ky]
-      radius: top_radius
-    cutoff:
+        aggregate:
+          method: midpoint
+          parts:
+            - ref: outline_bottom_left
+            - ref: outline_top_left
+            - ref: matrix_pinky_top
+              shift: [-0.5 kx - px, 0.5 ky + py]
+      radius:
+        ref: outline_bottom_left
+    cutoff_controller:
       what: rectangle
       operation: subtract
       adjust:
-        ref:
-          - matrix_inner_top
-        shift: [80/2 + 29.999, 0]
+        ref: outline_top_right
+        shift: [80/2 - 0.001, -200/2]
       size: [80, 200]
+
+  circles_bottom:
+    bottom:
+      what: circle
+      adjust:
+        aggregate:
+          method: midpoint
+          parts:
+            - ref: outline_bottom_left
+            - ref: outline_thumb_bottom
+            - ref: thumbfan_near_thumb
+              shift: [-0.5 kx - px, -0.5 ky - py]
+      radius:
+        ref: outline_bottom_left
+    cutoff_thumbfan:
+      what: rectangle
+      operation: subtract
+      adjust:
+        ref: outline_thumb_bottom
+        shift: [30/2, 0]
+      size: [30, 60]
+
   base_outline:
     main:
       what: outline
       name: raw
-      fillet: 2
+      fillet: 15
     thumbfan_glue:
       what: outline
       name: thumbfan_glue
       operation: add
-    controller_area:
+    circles_top:
       what: outline
-      name: controller_area
+      name: circles_top
       operation: add
-    circles:
+      fillet: 15
+    circles_bottom:
       what: outline
-      name: circles
-      operation: add
+      name: circles_bottom
+      operation: subtract
+
   pcb:
     main:
       what: outline
       name: base_outline
-      fillet: 15
+
   layout_tester:
     main:
       what: outline
       name: pcb
     keys:
       what: rectangle
-      where: true
+      where:
+        - /matrix_.*/
+        - /thumbfan_.*/
       size: [kx - 0.01, ky - 0.01]
       corner: px
       bound: false
@@ -241,15 +250,17 @@ pcbs:
       edge:
         outline: pcb
         layer: Edge.Cuts
-      circles:
-        outline: circles
-        layer: Eco1.User
+      # circles:
+      #   outline: circles_bottom
+      #   layer: Eco1.User
     footprints:
       choc:
-        where: true
+        where:
+          - /matrix_.*/
+          - /thumbfan_.*/
         what: custom/choc
         params:
-          from: "{{column_net}}"
+          from: "{{name}}"
           to: GND
           keycaps: true
           hotswap: true
@@ -261,31 +272,39 @@ pcbs:
           keycaps_y: capy
       mcu:
         what: custom/nice_nano_pretty
+        where: mcu
         params:
           minimal_jumpers: true
-        adjust:
-          ref:
-            - matrix_inner_top
-          shift: [20, -36/2 + 0.4 ky]
-          rotate: 0
+          P1: matrix_inner_top
+          P0: matrix_inner_home
+          P2: matrix_inner_bottom
+          P3: matrix_ring_top
+          P4: matrix_middle_top
+          P5: matrix_middle_home
+          P6: matrix_middle_bottom
+          P7: matrix_index_bottom
+          P8: matrix_index_home
+          P9: matrix_index_top
+          P10: matrix_thumbfan_far
+          P16: matrix_thumbfan_home
+          P14: matrix_thumbfan_near
+          P15: matrix_pinky_bottom
+          P18: matrix_pinky_home
+          P19: matrix_pinky_top
+          P20: matrix_ring_bottom
+          P21: matrix_ring_home
       slider_l:
         what: custom/slider
-        adjust:
-          ref:
-            - matrix_inner_bottom
-          shift: [28, 0]
-          rotate: 270
+        where: slider
+        adjust.rotate: 270
         params:
           side: F
           from: Braw
           left: RAW
       slider_r:
         what: custom/slider
-        adjust:
-          ref:
-            - matrix_inner_bottom
-          shift: [28, 0]
-          rotate: 270
+        where: slider
+        adjust.rotate: 270
         params:
           side: B
           from: Braw
@@ -293,42 +312,129 @@ pcbs:
           skip_thruholes: true # avoid overlapping thruholes
       jst_bat:
         what: custom/jst_bat
-        adjust:
-          ref:
-            - matrix_inner_bottom
-          shift: [20, -17.5]
+        where: jst_bat
         params:
           reverse: true
           pos: Braw
           neg: GND
       reset:
         what: custom/reset
-        adjust:
-          ref:
-            - matrix_inner_bottom
-          shift: [27.5, -14]
-          rotate: 270
+        where: reset
+        adjust.rotate: 270
         params:
           from: GND
           to: RST
       info_l:
         what: custom/text
-        adjust:
-          ref:
-            - thumbfan_near_thumb
-          shift: [ -1.1 kx, -0.4 ky ]
-          rotate: -3.8
+        where: info
         params:
           text: "rae-dux v1.0\\nby ajrae"
           justify: left
       info_r:
         what: custom/text
-        adjust:
-          ref:
-            - thumbfan_near_thumb
-          shift: [ -1.1 kx, -0.4 ky]
-          rotate: -3.8
+        where: info
         params:
           layer: B.SilkS
           text: "rae-dux v1.0\\nby ajrae"
           justify: mirror right
+
+      # traces to make things prettier??
+      pinky_top_t:
+        what: custom/trace
+        adjust:
+          ref: matrix_pinky_top
+          shift: [ 5 + 1.2 + 3*0.5001, -3.8 - 1]
+        params:
+          net: matrix_pinky_top
+          side: F
+          y_end: 1.2 ky
+      pinky_home_t:
+        what: custom/trace
+        adjust:
+          ref: matrix_pinky_home
+          shift: [ 5 + 1.2 + 2*0.5001, -3.8 - 1]
+        params:
+          net: matrix_pinky_home
+          side: F
+          y_end: 0.2 ky
+      ring_top_t:
+        what: custom/trace
+        adjust:
+          ref: matrix_ring_top
+          shift: [ 5 + 1.2 + 3*0.5001, -3.8 - 1]
+        params:
+          net: matrix_ring_top
+          side: F
+          y_end: 2.2 ky
+      ring_home_t:
+        what: custom/trace
+        adjust:
+          ref: matrix_ring_home
+          shift: [ 5 + 1.2 + 2*0.5001, -3.8 - 1]
+        params:
+          net: matrix_ring_home
+          side: F
+          y_end: 1.2 ky
+      ring_bottom_t:
+        what: custom/trace
+        adjust:
+          ref: matrix_ring_bottom
+          shift: [ 5 + 1.2 + 1*0.5001, -3.8 - 1]
+        params:
+          net: matrix_ring_bottom
+          side: F
+          y_end: 0.2 ky
+      middle_top_t:
+        what: custom/trace
+        adjust:
+          ref: matrix_middle_top
+          shift: [ 5 + 1.2 + 3*0.5001, -3.8 - 1]
+        params:
+          net: matrix_middle_top
+          side: F
+          y_end: 2.5 ky
+      middle_home_t:
+        what: custom/trace
+        adjust:
+          ref: matrix_middle_home
+          shift: [ 5 + 1.2 + 2*0.5001, -3.8 - 1]
+        params:
+          net: matrix_middle_home
+          side: F
+          y_end: 1.5 ky
+      middle_bottom_t:
+        what: custom/trace
+        adjust:
+          ref: matrix_middle_bottom
+          shift: [ 5 + 1.2 + 1*0.5001, -3.8 - 1]
+        params:
+          net: matrix_middle_bottom
+          side: F
+          y_end: 0.5 ky
+      index_top_t:
+        what: custom/trace
+        adjust:
+          ref: matrix_index_top
+          shift: [ 5 + 1.2 + 3*0.5001, -3.8 - 1]
+        params:
+          net: matrix_index_top
+          side: F
+          y_end: 2.3 ky
+      index_home_t:
+        what: custom/trace
+        adjust:
+          ref: matrix_index_home
+          shift: [ 5 + 1.2 + 2*0.5001, -3.8 - 1]
+        params:
+          net: matrix_index_home
+          side: F
+          y_end: 1.3 ky
+      index_bottom_t:
+        what: custom/trace
+        adjust:
+          ref: matrix_index_bottom
+          shift: [ 5 + 1.2 + 1*0.5001, -3.8 - 1]
+        params:
+          net: matrix_index_bottom
+          side: F
+          y_end: 0.3 ky

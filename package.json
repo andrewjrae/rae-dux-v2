@@ -1,11 +1,13 @@
 {
     "scripts": {
-        "build": "npm exec ergogen ./ --clear",
+        "gen-pcb": "npm exec ergogen ./ --clear",
+        "update-pcb": "python3 resources/kb_ergogen_helper/ergogen_helper.py update-pcb output/pcbs/board.kicad_pcb",
+        "build": "npm run gen-pcb && npm run update-pcb",
         "watch:build": "nodemon -e yaml -x \"npm run build\" --ignore ergogen/output",
         "viewpcb": "GTK_THEME=\"\" pcbnew output/pcbs/board.kicad_pcb"
     },
     "dependencies": {
-        "ergogen": "github:ergogen/ergogen#develop",
+        "ergogen": "github:andrewjrae/ergogen#circle-from-points",
         "nodemon": "^3.0.1"
     },
     "nodemonConfig": {
