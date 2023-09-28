@@ -31,6 +31,8 @@
 // https://github.com/Albert-IV/ergogen-contrib/blob/main/src/footprints/promicro_pretty.js
 // https://github.com/50an6xy06r6n/keyboard_reversible.pretty
 
+const mathjs = await import('mathjs')
+
 module.exports =  {
     params: {
       designator: 'MCU',
@@ -106,37 +108,12 @@ module.exports =  {
         return label;
       };
 
-      const get_at_coordinates = () => {
-        const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
-        const matches = p.at.match(pattern);
-        if (matches && matches.length == 4) {
-          return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
-        } else {
-          return null;
-        }
-      }
-
       const adjust_point = (x, y) => {
-        const at_l = get_at_coordinates();
-        if(at_l == null) {
-          throw new Error(
-            `Could not get x and y coordinates from p.at: ${p.at}`
-          );
-        }
-        const at_x = at_l[0];
-        const at_y = at_l[1];
-        const at_angle = at_l[2];
-        const adj_x = at_x + x;
-        const adj_y = at_y + y;
-
-        const radians = (Math.PI / 180) * at_angle,
-          cos = Math.cos(radians),
-          sin = Math.sin(radians),
-          nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
-          ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
-
-        const point_str = `${nx.toFixed(2)} ${ny.toFixed(2)}`;
-        return point_str;
+        let v = [x, y]
+        v = mathjs.rotate(v, mathjs.unit(`${-p.r}deg`))
+        const nx = v[0] + p.x
+        const ny = v[1] + p.y
+        return `${nx.toFixed(2)} ${ny.toFixed(2)}`
       }
 
       const gen_traces_row = (row_num) => {
@@ -151,10 +128,10 @@ module.exports =  {
           (segment (start ${ adjust_point(3.012, -12.45 + (row_num * 2.54)) }) (end ${ adjust_point(3.262, -12.7 + (row_num * 2.54)) }) (width 0.25) (layer F.Cu) (net 1))
           (segment (start ${ adjust_point(-2.45, -12.45 + (row_num * 2.54)) }) (end ${ adjust_point(3.012, -12.45 + (row_num * 2.54)) }) (width 0.25) (layer F.Cu) (net 1))
           (segment (start ${ adjust_point(-4.775, -12.7 + (row_num * 2.54)) }) (end ${ adjust_point(-3.262, -12.7 + (row_num * 2.54)) }) (width 0.25) (layer B.Cu) (net 13))
-          (segment (start ${ adjust_point(3.610001, -13.425001 + (row_num * 2.54)) }) (end ${ adjust_point(2.914, -13.425001 + (row_num * 2.54)) }) (width 0.25) (layer F.Cu) (net 13))
-          (segment (start ${ adjust_point(4.335002, -12.7 + (row_num * 2.54)) }) (end ${ adjust_point(3.610001, -13.425001 + (row_num * 2.54)) }) (width 0.25) (layer F.Cu) (net 13))
+          (segment (start ${ adjust_point(3.610001, -13.43 + (row_num * 2.54)) }) (end ${ adjust_point(2.914, -13.43 + (row_num * 2.54)) }) (width 0.25) (layer F.Cu) (net 13))
+          (segment (start ${ adjust_point(4.335002, -12.7 + (row_num * 2.54)) }) (end ${ adjust_point(3.610001, -13.43 + (row_num * 2.54)) }) (width 0.25) (layer F.Cu) (net 13))
           (segment (start ${ adjust_point(4.775, -12.7 + (row_num * 2.54)) }) (end ${ adjust_point(4.335002, -12.7 + (row_num * 2.54)) }) (width 0.25) (layer F.Cu) (net 13))
-          (segment (start ${ adjust_point(2.914, -13.425001 + (row_num * 2.54)) }) (end ${ adjust_point(2.438998, -12.95 + (row_num * 2.54)) }) (width 0.25) (layer F.Cu) (net 13))
+          (segment (start ${ adjust_point(2.914, -13.43 + (row_num * 2.54)) }) (end ${ adjust_point(2.438998, -12.95 + (row_num * 2.54)) }) (width 0.25) (layer F.Cu) (net 13))
           (segment (start ${ adjust_point(-3.012, -12.95 + (row_num * 2.54)) }) (end ${ adjust_point(-3.262, -12.7 + (row_num * 2.54)) }) (width 0.25) (layer F.Cu) (net 13))
           (segment (start ${ adjust_point(2.438998, -12.95 + (row_num * 2.54)) }) (end ${ adjust_point(-3.012, -12.95 + (row_num * 2.54)) }) (width 0.25) (layer F.Cu) (net 13))
           (segment (start ${ adjust_point(-7.62, -12.7 + (row_num * 2.54)) }) (end ${ adjust_point(-5.5, -12.7 + (row_num * 2.54)) }) (width 0.25) (layer B.Cu) (net 23))

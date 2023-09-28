@@ -12,10 +12,13 @@ presets:
     ky: cy
     px: 2
     py: 2
+    one: 1
+    pi: 3.141592654
     pinky_splay: 17
     ring_splay: -7
     home_splay: -7
     index_splay: -3
+    ts: 0.5001 # trace spacing
 
   choc_spaced:
     $extends: presets.defaults
@@ -36,20 +39,41 @@ points:
     anchor.shift: [150, -180]
     key:
       padding: ky
+      trace_target: bottom
+      extra_toff: "0"
     rows:
       bottom:
+        trace_offset_x: 1 + 1ts
+        trace_offset_y: 1 + 1ts
+        trace_length: 0ky
+        row_idx: (2)
       home:
+        trace_offset_x: 1 + 2ts
+        trace_offset_y: 1 + 2ts
+        trace_length: 1ky
+        row_idx: (1)
       top:
+        trace_offset_x: 1 + 3ts
+        trace_offset_y: 1 + 3ts
+        trace_length: 2ky
+        row_idx: (0)
     columns:
       pinky.key:
         spread: kx
         splay: pinky_splay
         origin: [0, -ky]
+        col_idx: (3)
+        trace_target: home
+      pinky.rows.bottom:
+          trace_offset_x: 1 + 4ts
+          trace_offset_y: -(1 + 4ts)
+          extra_toff: -0.3ky
       ring.key:
         spread: kx
-        stagger: ky
+        stagger: 0.95ky
         splay: ring_splay
         origin: [0, -ky]
+        col_idx: (2)
       middle.key:
         spread: kx
         stagger: ky/3
@@ -57,15 +81,18 @@ points:
         origin: [0, -ky]
         shift: [0.2, 0]
         bind: 0
+        col_idx: (1)
       index.key:
         spread: kx
         stagger: -ky/3
         splay: index_splay
         origin: [0, -ky]
+        col_idx: (0)
       inner.key:
         spread: kx
         stagger: -ky/6
         origin: [0, -ky]
+        # no col idx
   zones.thumbfan:
     anchor:
       ref: matrix_inner_bottom
@@ -107,6 +134,16 @@ points:
       ref: thumbfan_near_thumb
       shift: [ -1.1 kx, -0.4 ky ]
 
+  # Trace points
+  zones.bus_elbow_lower:
+    anchor:
+      ref: matrix_inner_bottom
+      shift: [6, -0.55ky]
+  zones.bus_elbow_upper:
+    anchor:
+      ref: mcu
+      shift: [-7ts, -36/2]
+
   # Outline points
   zones.outline_top_right:
     anchor:
@@ -144,6 +181,7 @@ outlines:
       points:
         - ref: matrix_inner_home
         - ref: outline_top_right
+          shift: [0.0001, 0] # Needs a little extra offset to the right
         - ref: reset
           shift: [0, -4]
         - ref: outline_thumb_top
@@ -182,7 +220,7 @@ outlines:
       operation: subtract
       adjust:
         ref: outline_top_right
-        shift: [80/2 - 0.001, -200/2]
+        shift: [80/2, -200/2]
       size: [80, 200]
 
   circles_bottom:
@@ -266,7 +304,7 @@ pcbs:
           hotswap: true
           hotswap_tht: true
           reverse: true
-          traces: true
+          traces: false
           assume_ground_fill: true
           keycaps_x: capx
           keycaps_y: capy
@@ -275,19 +313,20 @@ pcbs:
         where: mcu
         params:
           minimal_jumpers: true
+          traces: false
           P1: matrix_inner_top
           P0: matrix_inner_home
           P2: matrix_inner_bottom
           P3: matrix_ring_top
-          P4: matrix_middle_top
+          P4: matrix_middle_bottom
           P5: matrix_middle_home
-          P6: matrix_middle_bottom
+          P6: matrix_middle_top
           P7: matrix_index_bottom
           P8: matrix_index_home
           P9: matrix_index_top
-          P10: matrix_thumbfan_far
-          P16: matrix_thumbfan_home
-          P14: matrix_thumbfan_near
+          P10: thumbfan_far_thumb
+          P16: thumbfan_home_thumb
+          P14: thumbfan_near_thumb
           P15: matrix_pinky_bottom
           P18: matrix_pinky_home
           P19: matrix_pinky_top
@@ -338,103 +377,76 @@ pcbs:
           text: "rae-dux v1.0\\nby ajrae"
           justify: mirror right
 
-      # traces to make things prettier??
-      pinky_top_t:
-        what: custom/trace
-        adjust:
-          ref: matrix_pinky_top
-          shift: [ 5 + 1.2 + 3*0.5001, -3.8 - 1]
+      inter_key_to:
+        what: custom/router
+        where:
+          - /matrix_.*/
         params:
-          net: matrix_pinky_top
-          side: F
-          y_end: 1.2 ky
-      pinky_home_t:
-        what: custom/trace
-        adjust:
-          ref: matrix_pinky_home
-          shift: [ 5 + 1.2 + 2*0.5001, -3.8 - 1]
+          net: GND
+          route: |
+            - point: [-8.275, -3.75]
+              point_type: relative
+              layer: F.Cu
+            - point: [0, 0.75ry]
+              point_type: offset
+            - point: [0.25rx, 0.25ry]
+              point_type: offset
+            - point: [0, 5.9]
+              point_type: relative
+
+      inter_key_from:
+        what: custom/router
+        where:
+          - /matrix_.*/
         params:
-          net: matrix_pinky_home
-          side: F
-          y_end: 0.2 ky
-      ring_top_t:
-        what: custom/trace
+          net: "{{name}}"
+          route: |
+            - point: [3.075, -5.95]
+              point_type: relative
+              layer: F.Cu
+            - point: [0, ry-rx] # gets 45 deg angle in
+              point_type: offset
+            - point: [5, 3.8]
+              point_type: relative
+            - point: [-5, 3.8]
+              point_type: relative
+            - point: [rx, -rx] # gets 45 deg angle out
+              point_type: offset
+              layer: B.Cu
+            - point: [-3.075, -5.95]
+              point_type: relative
+
+      matrix_to_bus_traces:
+        what: custom/router
+        where:
+          - /matrix_ring.*/
+          - /matrix_middle.*/
+          - /matrix_index.*/
+          - /matrix_pinky.*/
         adjust:
-          ref: matrix_ring_top
-          shift: [ 5 + 1.2 + 3*0.5001, -3.8 - 1]
+          shift: [5, -3.8]
         params:
-          net: matrix_ring_top
-          side: F
-          y_end: 2.2 ky
-      ring_home_t:
-        what: custom/trace
-        adjust:
-          ref: matrix_ring_home
-          shift: [ 5 + 1.2 + 2*0.5001, -3.8 - 1]
-        params:
-          net: matrix_ring_home
-          side: F
-          y_end: 1.2 ky
-      ring_bottom_t:
-        what: custom/trace
-        adjust:
-          ref: matrix_ring_bottom
-          shift: [ 5 + 1.2 + 1*0.5001, -3.8 - 1]
-        params:
-          net: matrix_ring_bottom
-          side: F
-          y_end: 0.2 ky
-      middle_top_t:
-        what: custom/trace
-        adjust:
-          ref: matrix_middle_top
-          shift: [ 5 + 1.2 + 3*0.5001, -3.8 - 1]
-        params:
-          net: matrix_middle_top
-          side: F
-          y_end: 2.5 ky
-      middle_home_t:
-        what: custom/trace
-        adjust:
-          ref: matrix_middle_home
-          shift: [ 5 + 1.2 + 2*0.5001, -3.8 - 1]
-        params:
-          net: matrix_middle_home
-          side: F
-          y_end: 1.5 ky
-      middle_bottom_t:
-        what: custom/trace
-        adjust:
-          ref: matrix_middle_bottom
-          shift: [ 5 + 1.2 + 1*0.5001, -3.8 - 1]
-        params:
-          net: matrix_middle_bottom
-          side: F
-          y_end: 0.5 ky
-      index_top_t:
-        what: custom/trace
-        adjust:
-          ref: matrix_index_top
-          shift: [ 5 + 1.2 + 3*0.5001, -3.8 - 1]
-        params:
-          net: matrix_index_top
-          side: F
-          y_end: 2.3 ky
-      index_home_t:
-        what: custom/trace
-        adjust:
-          ref: matrix_index_home
-          shift: [ 5 + 1.2 + 2*0.5001, -3.8 - 1]
-        params:
-          net: matrix_index_home
-          side: F
-          y_end: 1.3 ky
-      index_bottom_t:
-        what: custom/trace
-        adjust:
-          ref: matrix_index_bottom
-          shift: [ 5 + 1.2 + 1*0.5001, -3.8 - 1]
-        params:
-          net: matrix_index_bottom
-          side: F
-          y_end: 0.3 ky
+          net: "{{name}}"
+          route: |
+            - point: [0, 0]
+              point_type: relative
+              layer: F.Cu
+            - point: [{{trace_offset_x}}, {{trace_offset_y}}]
+              point_type: offset
+            - point:
+                ref: {{zone.name}}_{{col.name}}_{{trace_target}}
+                shift: [5 + {{trace_offset_x}}, -0.5ky + {{trace_offset_y}} + {{extra_toff}}]
+              point_type: anchor
+              rotate: -r
+            - point: [0.2rx, ry]
+              point_type: offset
+            - point:
+                ref: bus_elbow_lower
+                shift: [ts*atan(pi/4)({{col_idx}}*3 + {{row_idx}}), -ts*({{col_idx}}*3 + {{row_idx}})]
+              point_type: anchor
+            - point: [rx, -rx]
+              point_type: offset
+            - point:
+                ref: bus_elbow_upper
+                shift: [ts*({{col_idx}}*3 + {{row_idx}}), 0]
+              point_type: anchor

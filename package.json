@@ -1,16 +1,20 @@
 {
     "scripts": {
-        "gen-pcb": "npm exec ergogen ./ --clear",
-        "update-pcb": "python3 resources/kb_ergogen_helper/ergogen_helper.py update-pcb output/pcbs/board.kicad_pcb",
-        "build": "npm run gen-pcb && npm run update-pcb",
-        "watch:build": "nodemon -e yaml -x \"npm run build\" --ignore ergogen/output",
-        "viewpcb": "GTK_THEME=\"\" pcbnew output/pcbs/board.kicad_pcb"
+        "ergogen": "npm exec ergogen -- ./ --clear",
+        "post-ergogen": "python3 scripts/post_ergogen.py -b output/pcbs/board.kicad_pcb",
+        "gen-pcb": "npm run ergogen && npm run post-ergogen",
+        "watch:gen-pcb": "nodemon -e yaml,js -x \"npm run gen-pcb\"",
+        "route": "freerouting -de output/pcbs/board.dsn -do output/pcbs/board.ses -inc GND -mp 100",
+        "post-route": "python3 scripts/post_route.py -b output/pcbs/board.kicad_pcb -s output/pcbs/board.ses",
+        "view-pcb": "GTK_THEME=\"\" pcbnew output/pcbs/board.kicad_pcb",
+        "view-pcb-routed": "GTK_THEME=\"\" pcbnew output/pcbs/board-routed.kicad_pcb"
     },
     "dependencies": {
-        "ergogen": "github:andrewjrae/ergogen#circle-from-points",
+        "ergogen": "github:andrewjrae/ergogen#andrewjrae",
         "nodemon": "^3.0.1"
     },
     "nodemonConfig": {
-      "delay": 1500
+        "ignore": ["output"],
+        "delay": 1500
     }
 }
