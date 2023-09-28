@@ -381,6 +381,7 @@ pcbs:
         what: custom/router
         where:
           - /matrix_.*/
+          - /thumbfan_.*/
         params:
           net: GND
           route: |
@@ -398,6 +399,7 @@ pcbs:
         what: custom/router
         where:
           - /matrix_.*/
+          - /thumbfan_.*/
         params:
           net: "{{name}}"
           route: |
