@@ -10,9 +10,8 @@ presets:
     capy: 16
     kx: cx
     ky: cy
-    px: 2
-    py: 2
-    one: 1
+    px: 2.5
+    py: 2.5
     pi: 3.141592654
     pinky_splay: 17
     ring_splay: -7
