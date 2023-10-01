@@ -17,7 +17,7 @@ This is the successor to the [[https://github.com/andrewjrae/rae-dux][rae-dux]],
 - Reversible nice-nano footprint so both controllers will face up
 - Power sliders should actually match orientation for on/off!
 
-** TODO
+** Todo
 - [ ] Print and test the PCB
 - [ ] Docs on the flow
 - [ ] Automate DRC check + gerber export?

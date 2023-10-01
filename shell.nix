@@ -38,6 +38,7 @@ mkShell {
     custom-kicad
     custom-python3-with-kicad
     freerouting
+    zip # for export script
   ];
   shellHook = ''
     npm install

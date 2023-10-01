@@ -8,7 +8,10 @@
         "post-route": "python3 scripts/post_route.py -b output/pcbs/board.kicad_pcb -s output/pcbs/board.ses -p output/points/points.yaml",
         "watch:post-route": "nodemon -e py -x \"npm run post-route\"",
         "route-pcb": "npm run route && npm run post-route",
-        "gen-full": "npm run gen-pcb && npm run route-pcb",
+        "gen-and-route": "npm run gen-pcb && npm run route-pcb",
+        "drc": "sh scripts/run-drc.sh",
+        "export-gerbers": "sh scripts/export-gerbers.sh",
+        "build-all": "npm run gen-and-route && npm run drc && npm run export-gerbers",
         "view-pcb": "GTK_THEME=\"\" pcbnew output/pcbs/board.kicad_pcb",
         "view-pcb-routed": "GTK_THEME=\"\" pcbnew output/pcbs/board-routed.kicad_pcb"
     },
