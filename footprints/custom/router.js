@@ -103,7 +103,7 @@ module.exports = {
         const next_parsed = route_parsed.slice(i+1).find(is_parsed)
         if (next_parsed) {
           let diff = mathjs.subtract(next_parsed.point, point)
-          diff = mathjs.rotate(diff, mathjs.unit(`${r.rotate}deg`))
+          diff = mathjs.rotate(diff, mathjs.unit(`${next_parsed.rotate}deg`))
           units.rx = diff[0]
           units.ry = diff[1]
         } else {

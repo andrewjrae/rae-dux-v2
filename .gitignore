@@ -2,3 +2,4 @@
 /node_modules/
 /scripts/__pycache__/
 /logs/
+/.nix-gc-roots/

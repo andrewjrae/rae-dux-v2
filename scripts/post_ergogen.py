@@ -9,8 +9,10 @@ from pathlib import Path
 
 gnd_name = 'GND'
 power_nc_name = 'power'
-power_nets = ['RAW', 'Braw', 'MCU1_1', 'MCU1_24']
-power_net_tw = 500000
+power_nets = ['RAW', 'Braw',
+              'MCU1_1', 'MCU1_2', 'MCU1_3',
+              'MCU1_22', 'MCU1_23', 'MCU1_24']
+power_net_tw = 400000
 
 def main():
     parser = argparse.ArgumentParser()
@@ -20,6 +22,7 @@ def main():
     print(args.board)
     pcb = load_pcb(args.board)
 
+    # setup net classes
     ncs = pcb.GetNetClasses()
     gnd_nc = pcbnew.NETCLASS(gnd_name)
     ncs[gnd_name] = gnd_nc

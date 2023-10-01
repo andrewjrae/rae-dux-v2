@@ -1,11 +1,14 @@
 {
     "scripts": {
-        "ergogen": "npm exec ergogen -- ./ --clear",
+        "ergogen": "npm exec ergogen -- ./ --debug",
         "post-ergogen": "python3 scripts/post_ergogen.py -b output/pcbs/board.kicad_pcb",
         "gen-pcb": "npm run ergogen && npm run post-ergogen",
         "watch:gen-pcb": "nodemon -e yaml,js -x \"npm run gen-pcb\"",
         "route": "freerouting -de output/pcbs/board.dsn -do output/pcbs/board.ses -inc GND -mp 100",
-        "post-route": "python3 scripts/post_route.py -b output/pcbs/board.kicad_pcb -s output/pcbs/board.ses",
+        "post-route": "python3 scripts/post_route.py -b output/pcbs/board.kicad_pcb -s output/pcbs/board.ses -p output/points/points.yaml",
+        "watch:post-route": "nodemon -e py -x \"npm run post-route\"",
+        "route-pcb": "npm run route && npm run post-route",
+        "gen-full": "npm run gen-pcb && npm run route-pcb",
         "view-pcb": "GTK_THEME=\"\" pcbnew output/pcbs/board.kicad_pcb",
         "view-pcb-routed": "GTK_THEME=\"\" pcbnew output/pcbs/board-routed.kicad_pcb"
     },

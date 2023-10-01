@@ -23,7 +23,11 @@ let
     };
   };
   custom-python3-with-kicad = custom-python3.withPackages(
-    ps: [ps.kicad]
+    ps: [
+      ps.kicad
+      ps.pyaml
+      ps.numpy
+    ]
   );
   freerouting = callPackage ./nix/freerouting {};
 in

@@ -40,21 +40,17 @@ points:
     key:
       padding: ky
       trace_target: bottom
-      extra_toff: "0"
     rows:
       bottom:
-        trace_offset_x: 1 + 1ts
-        trace_offset_y: 1 + 1ts
+        trace_offset: 1 + 1ts
         trace_length: 0ky
         row_idx: (2)
       home:
-        trace_offset_x: 1 + 2ts
-        trace_offset_y: 1 + 2ts
+        trace_offset: 1 + 2ts
         trace_length: 1ky
         row_idx: (1)
       top:
-        trace_offset_x: 1 + 3ts
-        trace_offset_y: 1 + 3ts
+        trace_offset: 1 + 3ts
         trace_length: 2ky
         row_idx: (0)
     columns:
@@ -64,10 +60,6 @@ points:
         origin: [0, -ky]
         col_idx: (3)
         trace_target: home
-      pinky.rows.bottom:
-          trace_offset_x: 1 + 4ts
-          trace_offset_y: -(1 + 4ts)
-          extra_toff: -0.3ky
       ring.key:
         spread: kx
         stagger: 0.95ky
@@ -102,15 +94,19 @@ points:
         spread: kx
         splay: -5
         origin: [-1.5 * kx, -0.5 * ky]
+        row_idx: (0)
       home.key:
         spread: kx
         splay: -8
         origin: [-0.5 * kx, -0.5 * ky]
+        row_idx: (1)
       far.key:
         spread: kx
         splay: -20
         origin: [-0.5 * kx, -0.5 * ky]
+        row_idx: (2)
     rows.thumb:
+        col_idx: (4)
 
   # Component points
   zones.mcu:
@@ -124,7 +120,7 @@ points:
   zones.slider:
     anchor:
       ref: matrix_inner_bottom
-      shift: [28, 0]
+      shift: [28 - 0.051, 0]
   zones.jst_bat:
     anchor:
       ref: reset
@@ -142,7 +138,7 @@ points:
   zones.bus_elbow_upper:
     anchor:
       ref: mcu
-      shift: [-7ts, -36/2]
+      shift: [-7ts, -36/2 - 3]
 
   # Outline points
   zones.outline_top_right:
@@ -288,9 +284,6 @@ pcbs:
       edge:
         outline: pcb
         layer: Edge.Cuts
-      # circles:
-      #   outline: circles_bottom
-      #   layer: Eco1.User
     footprints:
       choc:
         where:
@@ -313,7 +306,7 @@ pcbs:
         where: mcu
         params:
           minimal_jumpers: true
-          traces: false
+          traces: true
           P1: matrix_inner_top
           P0: matrix_inner_home
           P2: matrix_inner_bottom
@@ -418,26 +411,25 @@ pcbs:
             - point: [-3.075, -5.95]
               point_type: relative
 
-      matrix_to_bus_traces:
+      matrix_to_mcu_traces:
         what: custom/router
         where:
           - /matrix_ring.*/
           - /matrix_middle.*/
           - /matrix_index.*/
-          - /matrix_pinky.*/
-        adjust:
-          shift: [5, -3.8]
+          - /matrix_pinky_top/
+          - /matrix_pinky_home/
         params:
           net: "{{name}}"
           route: |
-            - point: [0, 0]
+            - point: [5, 3.8]
               point_type: relative
               layer: F.Cu
-            - point: [{{trace_offset_x}}, {{trace_offset_y}}]
+            - point: [{{trace_offset}}, {{trace_offset}}]
               point_type: offset
             - point:
                 ref: {{zone.name}}_{{col.name}}_{{trace_target}}
-                shift: [5 + {{trace_offset_x}}, -0.5ky + {{trace_offset_y}} + {{extra_toff}}]
+                shift: [5 + {{trace_offset}}, -0.5ky + {{trace_offset}}]
               point_type: anchor
               rotate: -r
             - point: [0.2rx, ry]
@@ -452,3 +444,132 @@ pcbs:
                 ref: bus_elbow_upper
                 shift: [ts*({{col_idx}}*3 + {{row_idx}}), 0]
               point_type: anchor
+
+      pinkybottom_to_mcu_trace:
+        what: custom/router
+        where:
+          - /matrix_pinky_bottom/
+        params:
+          net: "{{name}}"
+          route: |
+            - point: [5, 3.8]
+              point_type: relative
+              layer: F.Cu
+            - point: [5 + 2*{{trace_offset}}, 3.8 - 2*{{trace_offset}}]
+              point_type: relative
+            - point: [0.2rx, ry]
+              point_type: offset
+              rotate: -r
+            - point:
+                ref: bus_elbow_lower
+                shift: [ts*atan(pi/4)({{col_idx}}*3 + {{row_idx}}), -ts*({{col_idx}}*3 + {{row_idx}})]
+              point_type: anchor
+            - point: [rx, -rx]
+              point_type: offset
+            - point:
+                ref: bus_elbow_upper
+                shift: [ts*({{col_idx}}*3 + {{row_idx}}), 0]
+              point_type: anchor
+
+      thumbnear_to_mcu_trace:
+        what: custom/router
+        where:
+          - /thumbfan_near.*/
+        params:
+          net: "{{name}}"
+          route: |
+            - point: [3.075, -5.95]
+              point_type: relative
+              layer: F.Cu
+            - point: [3.075, -5.95 - 5*ts]
+              point_type: relative
+            - point: [0.2rx, ry]
+              point_type: offset
+            - point:
+                ref: bus_elbow_lower
+                shift: [ts*atan(pi/4)({{col_idx}}*3 + {{row_idx}}), -ts*({{col_idx}}*3 + {{row_idx}})]
+              point_type: anchor
+              rotate: -r
+            - point: [rx, -rx]
+              point_type: offset
+            - point:
+                ref: bus_elbow_upper
+                shift: [ts*({{col_idx}}*3 + {{row_idx}}), 0]
+              point_type: anchor
+
+      thumbhome_to_mcu_trace:
+        what: custom/router
+        where:
+          - /thumbfan_home.*/
+        params:
+          net: "{{name}}"
+          route: |
+            - point: [3.075, -5.95]
+              point_type: relative
+              layer: F.Cu
+            - point: [3.075, -5.95 - 4*ts]
+              point_type: relative
+            - point:
+                ref: thumbfan_home_thumb
+                shift: [-3.075 + ts*{{row_idx}}, 5.95 + 5*ts + ts*{{row_idx}}]
+              point_type: anchor
+            - point:
+                ref: bus_elbow_lower
+                shift: [ts*atan(pi/4)({{col_idx}}*3 + {{row_idx}}), -ts*({{col_idx}}*3 + {{row_idx}})]
+              point_type: anchor
+              rotate: -r
+            - point: [rx, -rx]
+              point_type: offset
+            - point:
+                ref: bus_elbow_upper
+                shift: [ts*({{col_idx}}*3 + {{row_idx}}), 0]
+              point_type: anchor
+
+      thumbfar_to_mcu_trace:
+        what: custom/router
+        where:
+          - /thumbfan_far.*/
+        params:
+          net: "{{name}}"
+          route: |
+            - point: [3.075, -5.95]
+              point_type: relative
+              layer: F.Cu
+            - point: [3.075, -5.95 - 4*ts]
+              point_type: relative
+            - point:
+                ref: thumbfan_far_thumb
+                shift: [-3.075, 5.95 + 5*ts + ts*{{row_idx}}]
+              point_type: anchor
+            - point:
+                ref: thumbfan_home_thumb
+                shift: [-3.075 + ts*{{row_idx}}, 5.95 + 5*ts + ts*{{row_idx}}]
+              point_type: anchor
+            - point:
+                ref: bus_elbow_lower
+                shift: [ts*atan(pi/4)({{col_idx}}*3 + {{row_idx}} + 1), -ts*({{col_idx}}*3 + {{row_idx}} - 1)]
+              point_type: anchor
+              rotate: -r
+            - point: [rx, -rx]
+              point_type: offset
+            - point:
+                ref: bus_elbow_upper
+                shift: [ts*({{col_idx}}*3 + {{row_idx}}), 0]
+              point_type: anchor
+
+      gnd_interconnect:
+        what: custom/router
+        where: mcu
+        params:
+          net: GND
+          width: 0.4
+          route: |
+            - point: [4.775, -7.62]
+              point_type: relative
+              layer: F.Cu
+            - point: [3.262, -10.16]
+              point_type: relative
+            - point: [-3.262, -7.62]
+              point_type: relative
+            - point: [-4.775, -10.16]
+              point_type: relative

@@ -27,9 +27,9 @@ module.exports = {
                 (fp_text value "" (at 0 0) (layer F.SilkS) hide (effects (font (size 1.27 1.27) (thickness 0.15))))
 
                 ${''/* battery pads */}
-                ${pad(1, 0, 'B+', p.pos.str)}
-                ${pad(2, 1, 'B-', p.neg.str)}
-                ${pad(1, 2, 'B+', p.pos.str)}
+                ${pad(1, 0, 'B+', p.neg.str)}
+                ${pad(2, 1, 'B-', p.pos.str)}
+                ${pad(1, 2, 'B+', p.neg.str)}
             )
         `
     }
