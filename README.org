@@ -1,0 +1,33 @@
+* rae-dux v2
+:PROPERTIES:
+:ID:       e1fd74f7-22e3-419d-866a-df24b88291af
+:END:
+*NOTE*: this is currently experimental and has not yet been printed and tested
+
+This is the successor to the [[https://github.com/andrewjrae/rae-dux][rae-dux]], with many improvements, largely in the flow (fully automated routing finally works!).
+
+** Changes from V1
+- Ergogen V4
+- Key layout tweaks
+  - Pinky moved up ever so slightly
+  - Thumbs re-arranged slightly
+- MX spacing preset, *still uses chocs though!* (gotta have that DES)
+- [[#the-flow][Automated flow]]
+- "Swept" outline for more stability and looks ;)
+- Reversible nice-nano footprint so both controllers will face up
+- Power sliders should actually match orientation for on/off!
+
+** TODO
+- [ ] Print and test the PCB
+- [ ] Docs on the flow
+- [ ] Automate DRC check + gerber export?
+- [ ] CadQuery a case together??
+
+** Inspirations / Credit
+- The original [[https://github.com/tapioki/cephalopoda/tree/main/Architeuthis%20dux][A. Dux]] of course
+- The [[https://github.com/soundmonster/samoklava][samoklava]] board and flow which I couldn't get to work for splayed direct-pin routing but inspired me to try more automation
+- @infused-kim and their [[https://github.com/infused-kim/kb_ergogen_fp][footprint library]] which I made some minor changes to
+- @yanshay and their [[https://github.com/yanshay/ergogen-stuff/blob/main/docs/router.md][router footprint]] which inspired me to make my own router footprint
+
+** The Flow
+TODO! (hey I said it was experimental okay?!)
