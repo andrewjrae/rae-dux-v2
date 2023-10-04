@@ -1,7 +1,7 @@
 meta:
   engine: 4.0.4
   name: rae-dux
-  version: 0.5
+  version: 2.0
   author: ajrae
 
 presets:
@@ -18,6 +18,7 @@ presets:
     home_splay: -7
     index_splay: -3
     ts: 0.5001 # trace spacing
+    screw_radius: 1.1 # M2 screw
 
   choc_spaced:
     $extends: presets.defaults
@@ -161,6 +162,40 @@ points:
       ref: thumbfan_far_thumb
       shift: [0.5 kx - 0.5px, -0.5 ky - 0.5 py]
 
+  # PCB screws
+  zones.screw_top_left:
+    anchor:
+      ref: outline_top_left
+      shift: [2px, -2py]
+  zones.screw_pinky_bottom:
+    anchor:
+      ref: matrix_pinky_bottom
+      shift: [0.5kx + 1.5px, 3.75]
+  zones.screw_ring_middle_top:
+    anchor:
+      aggregate:
+        method: average
+        parts:
+          - ref: matrix_ring_top
+          - ref: matrix_middle_top
+      shift: [0, 0.5ky]
+  zones.screw_inner_top:
+    anchor:
+      ref: matrix_inner_top
+      shift: [0, 0.5ky + 1.5py]
+  zones.screw_thumb_far:
+    anchor:
+      aggregate:
+        method: average
+        parts:
+          - ref: thumbfan_home_thumb
+          - ref: thumbfan_far_thumb
+      shift: [0, 0.6ky]
+  zones.screw_thumb_near:
+    anchor:
+      ref: thumbfan_near_thumb
+      shift: [-0.5kx - 1.5px, 0]
+
 outlines:
   raw:
     - what: rectangle
@@ -183,6 +218,11 @@ outlines:
         - ref: outline_thumb_bottom
         - ref: matrix_pinky_bottom
           shift: [-0.5kx, -0.5ky]
+
+  screws:
+    - what: circle
+      where: /screw.*/
+      radius: screw_radius
 
   circles_top:
     top:
@@ -262,6 +302,10 @@ outlines:
     main:
       what: outline
       name: base_outline
+    screws:
+      what: outline
+      name: screws
+      operation: subtract
 
   layout_tester:
     main:
@@ -297,7 +341,6 @@ pcbs:
           hotswap_tht: true
           reverse: true
           traces: false
-          assume_ground_fill: true
           keycaps_x: capx
           keycaps_y: capy
       mcu:
@@ -359,14 +402,14 @@ pcbs:
         what: custom/text
         where: info
         params:
-          text: "rae-dux v1.0\\nby ajrae"
+          text: "rae-dux v2.0\\nby ajrae"
           justify: left
       info_r:
         what: custom/text
         where: info
         params:
           layer: B.SilkS
-          text: "rae-dux v1.0\\nby ajrae"
+          text: "rae-dux v2.0\\nby ajrae"
           justify: mirror right
 
       inter_key_to:
