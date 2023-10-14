@@ -10,13 +10,19 @@ presets:
     capy: 16
     kx: cx
     ky: cy
+    sx: 13.8
+    sy: 13.8
     px: 2.5
     py: 2.5
+    cap_tol: 1.6
     pi: 3.141592654
     pinky_splay: 17
     ring_splay: -7
     home_splay: -7
     index_splay: -3
+    thumb_near_splay: -5
+    thumb_home_splay: -8
+    thumb_far_splay: -20
     ts: 0.5001 # trace spacing
     screw_radius: 1.1 # M2 screw
 
@@ -92,19 +98,24 @@ points:
     columns:
       near.key:
         spread: kx
-        splay: -5
+        splay: thumb_near_splay
         origin: [-1.5 * kx, -0.5 * ky]
         row_idx: (0)
+        # bind: [0, (ky+cap_tol)*tan(0.5*abs(thumb_home_splay) deg) - cap_tol, 0, 0]
+        bind: [0, 0.2kx, 0, 0]
       home.key:
         spread: kx
-        splay: -8
+        splay: thumb_home_splay
         origin: [-0.5 * kx, -0.5 * ky]
         row_idx: (1)
+        # bind: [0, (ky+cap_tol)*tan(0.5*abs(thumb_far_splay) deg) - cap_tol, 0, (ky+cap_tol)*tan(0.5*abs(thumb_home_splay) deg) - cap_tol]
+        bind: [0, 0.2kx, 0, 0.2kx]
       far.key:
         spread: kx
-        splay: -20
+        splay: thumb_far_splay
         origin: [-0.5 * kx, -0.5 * ky]
         row_idx: (2)
+        bind: [0, 0, 0, 0.2kx]
     rows.thumb:
         col_idx: (4)
 
@@ -206,6 +217,57 @@ outlines:
       corner: px
       bound: true
 
+  switches:
+    - what: rectangle
+      where:
+        - /matrix_.*/
+        - /thumbfan_.*/
+      size: [sx, sy]
+
+  thumbwell:
+    thumbs:
+      what: rectangle
+      where:
+        - /thumbfan_.*/
+      size: [kx + 2*cap_tol, ky + 2*cap_tol]
+      bound: true
+    thumbs_cleanup:
+      what: rectangle
+      where:
+        - /thumbfan_.*/
+      adjust.shift: [0, ky + 2*cap_tol]
+      size: [kx + 2*cap_tol, ky + 2*cap_tol]
+      bound: true
+      operation: subtract
+
+  keywell:
+    thumbwell:
+      what: outline
+      name: thumbwell
+    matrix:
+      what: rectangle
+      where:
+        - /matrix_.*_home/
+      size: [kx + 2*cap_tol, 3*ky + 2*cap_tol]
+      operation: add
+
+  _keywell_bound:
+    thumbwell:
+      what: outline
+      name: thumbwell
+    matrix:
+      what: rectangle
+      where:
+        - /matrix_.*/
+      size: [kx + 2*cap_tol, ky + 2*cap_tol]
+      bound: true
+      operation: add
+
+  keywell_wall:
+    - what: outline
+      name: _keywell_bound
+      expand: 0.5px
+
   thumbfan_glue:
     - what: polygon
       points:
@@ -296,6 +358,23 @@ outlines:
     circles_bottom:
       what: outline
       name: circles_bottom
+      operation: subtract
+
+  case_outline:
+    - what: outline
+      name: base_outline
+      expand: px
+
+  pcb_cutout:
+    - what: outline
+      name: base_outline
+      expand: 0.25
+
+  inside_cutout:
+    - what: outline
+      name: pcb_cutout
+    - what: outline
+      name: keywell_wall
       operation: subtract
 
   pcb:
