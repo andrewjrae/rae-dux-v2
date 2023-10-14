@@ -25,6 +25,8 @@ presets:
     thumb_far_splay: -20
     ts: 0.5001 # trace spacing
     screw_radius: 1.1 # M2 screw
+    mcu_width: 17.78
+    mcu_height: 34
 
   choc_spaced:
     $extends: presets.defaults
@@ -68,7 +70,7 @@ points:
         trace_target: home
       ring.key:
         spread: kx
-        stagger: 0.95ky
+        stagger: 0.93ky
         splay: ring_splay
         origin: [0, -ky]
         col_idx: (2)
@@ -94,21 +96,19 @@ points:
   zones.thumbfan:
     anchor:
       ref: matrix_inner_bottom
-      shift: [-0.25 * kx, -1.4 * ky]
+      shift: [-0.25 * kx, -1.3 * ky]
     columns:
       near.key:
         spread: kx
         splay: thumb_near_splay
         origin: [-1.5 * kx, -0.5 * ky]
         row_idx: (0)
-        # bind: [0, (ky+cap_tol)*tan(0.5*abs(thumb_home_splay) deg) - cap_tol, 0, 0]
         bind: [0, 0.2kx, 0, 0]
       home.key:
         spread: kx
         splay: thumb_home_splay
         origin: [-0.5 * kx, -0.5 * ky]
         row_idx: (1)
-        # bind: [0, (ky+cap_tol)*tan(0.5*abs(thumb_far_splay) deg) - cap_tol, 0, (ky+cap_tol)*tan(0.5*abs(thumb_home_splay) deg) - cap_tol]
         bind: [0, 0.2kx, 0, 0.2kx]
       far.key:
         spread: kx
@@ -119,43 +119,11 @@ points:
     rows.thumb:
         col_idx: (4)
 
-  # Component points
-  zones.mcu:
-    anchor:
-      ref: matrix_inner_top
-      shift: [20, -36/2 + 0.4 ky]
-  zones.reset:
-    anchor:
-      ref: matrix_inner_bottom
-      shift: [27.5, -14]
-  zones.slider:
-    anchor:
-      ref: matrix_inner_bottom
-      shift: [28 - 0.051, 0]
-  zones.jst_bat:
-    anchor:
-      ref: reset
-      shift: [-7.5, -3.25]
-  zones.info:
-    anchor:
-      ref: thumbfan_near_thumb
-      shift: [ -1.1 kx, -0.4 ky ]
-
-  # Trace points
-  zones.bus_elbow_lower:
-    anchor:
-      ref: matrix_inner_bottom
-      shift: [6, -0.55ky]
-  zones.bus_elbow_upper:
-    anchor:
-      ref: mcu
-      shift: [-7ts, -36/2 - 3]
-
   # Outline points
   zones.outline_top_right:
     anchor:
-      ref: mcu
-      shift: [10, 36/2]
+      ref: matrix_inner_top
+      shift: [kx/2 + cap_tol + mcu_width + 1.5px, 0.4ky]
   zones.outline_top_left:
     anchor:
       ref: matrix_ring_top
@@ -172,6 +140,38 @@ points:
     anchor:
       ref: thumbfan_far_thumb
       shift: [0.5 kx - 0.5px, -0.5 ky - 0.5 py]
+
+  # Component points
+  zones.slider:
+    anchor:
+      ref: outline_top_right
+      shift: [-2.051, -2.4ky]
+  zones.mcu:
+    anchor:
+      ref: outline_top_right
+      shift: [-mcu_width/2 - px/2, -mcu_height/2]
+  zones.jst_bat:
+    anchor:
+      ref: mcu
+      shift: [0, -2.4ky + 2]
+  zones.reset:
+    anchor:
+      ref: jst_bat
+      shift: [7.5, 3.25]
+  zones.info:
+    anchor:
+      ref: thumbfan_near_thumb
+      shift: [ -1.1 kx, -0.4 ky ]
+
+  # Trace points
+  zones.bus_elbow_lower:
+    anchor:
+      ref: matrix_inner_bottom
+      shift: [6, -0.55ky]
+  zones.bus_elbow_upper:
+    anchor:
+      ref: mcu
+      shift: [-7ts, -36/2 - 3]
 
   # PCB screws
   zones.screw_top_left:
@@ -240,7 +240,7 @@ outlines:
       bound: true
       operation: subtract
 
-  keywell:
+  _keywell:
     thumbwell:
       what: outline
       name: thumbwell
@@ -262,6 +262,16 @@ outlines:
       size: [kx + 2*cap_tol, ky + 2*cap_tol]
       bound: true
       operation: add
+
+  _keywell_shrunk:
+    - what: outline
+      name: _keywell
+      expand: -cap_tol/4
+
+  keywell:
+    - what: outline
+      name: _keywell_shrunk
+      fillet: cap_tol/4
 
   keywell_wall:
     - what: outline
@@ -636,7 +646,7 @@ pcbs:
               point_type: anchor
             - point:
                 ref: bus_elbow_lower
-                shift: [ts*atan(pi/4)({{col_idx}}*3 + {{row_idx}}), -ts*({{col_idx}}*3 + {{row_idx}})]
+                shift: [ts*atan(pi/4)({{col_idx}}*3 + {{row_idx}} + 1), -ts*({{col_idx}}*3 + {{row_idx}} - 1)]
               point_type: anchor
               rotate: -r
             - point: [rx, -rx]
@@ -668,7 +678,7 @@ pcbs:
               point_type: anchor
             - point:
                 ref: bus_elbow_lower
-                shift: [ts*atan(pi/4)({{col_idx}}*3 + {{row_idx}} + 1), -ts*({{col_idx}}*3 + {{row_idx}} - 1)]
+                shift: [ts*atan(pi/4)({{col_idx}}*3 + {{row_idx}} + 2), -ts*({{col_idx}}*3 + {{row_idx}} - 2)]
               point_type: anchor
               rotate: -r
             - point: [rx, -rx]
