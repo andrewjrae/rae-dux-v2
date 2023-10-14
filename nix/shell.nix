@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs, cq-pkgs }:
 
 with pkgs;
 
@@ -29,7 +29,7 @@ let
       ps.numpy
     ]
   );
-  freerouting = callPackage ./nix/freerouting {};
+  freerouting = callPackage ./freerouting {};
 in
 mkShell {
   name = "keeb-utils";
@@ -39,6 +39,7 @@ mkShell {
     custom-python3-with-kicad
     freerouting
     zip # for export script
+    cq-pkgs.cq-editor
   ];
   shellHook = ''
     npm install
