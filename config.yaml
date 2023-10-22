@@ -10,11 +10,12 @@ presets:
     capy: 16
     kx: cx
     ky: cy
-    sx: 13.8
-    sy: 13.8
+    sx: 13.9
+    sy: 13.9
     px: 2.5
     py: 2.5
-    cap_tol: 1.6
+    cap_tol: 1.5
+    tol: 0.6
     pi: 3.141592654
     pinky_splay: 17
     ring_splay: -7
@@ -27,6 +28,11 @@ presets:
     screw_radius: 1.1 # M2 screw
     mcu_width: 17.78
     mcu_height: 34
+    wall_width: 2.5
+    case_fillet: 2
+    heatset_diameter: 3.23
+    heatset_radius: heatset_diameter / 2
+    screw_offset: 0.5kx + cap_tol + wall_width + heatset_radius
 
   choc_spaced:
     $extends: presets.defaults
@@ -123,7 +129,7 @@ points:
   zones.outline_top_right:
     anchor:
       ref: matrix_inner_top
-      shift: [kx/2 + cap_tol + mcu_width + 1.5px, 0.4ky]
+      shift: [kx/2 + cap_tol + mcu_width + wall_width + 0.75px, 0.4ky]
   zones.outline_top_left:
     anchor:
       ref: matrix_ring_top
@@ -145,7 +151,7 @@ points:
   zones.slider:
     anchor:
       ref: outline_top_right
-      shift: [-2.051, -2.4ky]
+      shift: [-2.051, -2.2ky]
   zones.mcu:
     anchor:
       ref: outline_top_right
@@ -153,7 +159,7 @@ points:
   zones.jst_bat:
     anchor:
       ref: mcu
-      shift: [0, -2.4ky + 2]
+      shift: [0, -2.2ky + 2]
   zones.reset:
     anchor:
       ref: jst_bat
@@ -161,7 +167,7 @@ points:
   zones.info:
     anchor:
       ref: thumbfan_near_thumb
-      shift: [ -1.1 kx, -0.4 ky ]
+      shift: [ -1.1 kx, 0]
 
   # Trace points
   zones.bus_elbow_lower:
@@ -173,6 +179,12 @@ points:
       ref: mcu
       shift: [-7ts, -36/2 - 3]
 
+  # wire cut placement in case
+  zones.wire_cut:
+    anchor:
+      ref: matrix_inner_bottom
+      shift: [-heatset_radius, -screw_offset]
+
   # PCB screws
   zones.screw_top_left:
     anchor:
@@ -181,19 +193,15 @@ points:
   zones.screw_pinky_bottom:
     anchor:
       ref: matrix_pinky_bottom
-      shift: [0.5kx + 1.5px, 3.75]
+      shift: [screw_offset, 3.60]
   zones.screw_ring_middle_top:
     anchor:
-      aggregate:
-        method: average
-        parts:
-          - ref: matrix_ring_top
-          - ref: matrix_middle_top
-      shift: [0, 0.5ky]
+      ref: matrix_middle_top
+      shift: [-screw_offset, 0.35ky]
   zones.screw_inner_top:
     anchor:
       ref: matrix_inner_top
-      shift: [0, 0.5ky + 1.5py]
+      shift: [0.3kx, screw_offset]
   zones.screw_thumb_far:
     anchor:
       aggregate:
@@ -201,11 +209,11 @@ points:
         parts:
           - ref: thumbfan_home_thumb
           - ref: thumbfan_far_thumb
-      shift: [0, 0.6ky]
+      shift: [0, 0.88ky]
   zones.screw_thumb_near:
     anchor:
       ref: thumbfan_near_thumb
-      shift: [-0.5kx - 1.5px, 0]
+      shift: [-screw_offset, -0.4ky]
 
 outlines:
   raw:
@@ -223,6 +231,13 @@ outlines:
         - /matrix_.*/
         - /thumbfan_.*/
       size: [sx, sy]
+
+  switch_clips:
+    - what: rectangle
+      where:
+        - /matrix_.*/
+        - /thumbfan_.*/
+      size: [sx+1.5, sy+1.5]
 
   thumbwell:
     thumbs:
@@ -244,11 +259,21 @@ outlines:
     thumbwell:
       what: outline
       name: thumbwell
-    matrix:
+    matrix_unbound:
       what: rectangle
       where:
-        - /matrix_.*_home/
+        - /matrix_pinky_home/
+        - /matrix_ring_home/
+        - /matrix_middle_home/
       size: [kx + 2*cap_tol, 3*ky + 2*cap_tol]
+      operation: add
+    matrix_bound:
+      what: rectangle
+      where:
+        - /matrix_index.*/
+        - /matrix_inner.*/
+      size: [kx + 2*cap_tol, ky + 2*cap_tol]
+      bound: true
       operation: add
 
   _keywell_bound:
@@ -266,17 +291,29 @@ outlines:
   _keywell_shrunk:
     - what: outline
       name: _keywell
-      expand: -cap_tol/4
+      expand: -cap_tol/3
 
   keywell:
     - what: outline
       name: _keywell_shrunk
-      fillet: cap_tol/4
+      fillet: cap_tol/3
 
   keywell_wall:
-    - what: outline
+    wall:
+      what: outline
       name: _keywell_bound
-      expand: 0.5px
+      expand: wall_width
+    thumb_bottom_cleanup:
+      what: rectangle
+      where:
+        - /thumbfan_.*/
+      adjust.shift: [0, -ky + -2*cap_tol]
+      size: [kx + 2*cap_tol, ky + 2*cap_tol]
+    wire_cut_cleanup:
+      what: rectangle
+      where: matrix_inner_bottom
+      adjust.shift: [-heatset_radius, -screw_offset]
+      size: [2*screw_offset, ky]
 
   thumbfan_glue:
     - what: polygon
@@ -373,19 +410,7 @@ outlines:
   case_outline:
     - what: outline
       name: base_outline
-      expand: px
-
-  pcb_cutout:
-    - what: outline
-      name: base_outline
-      expand: 0.25
-
-  inside_cutout:
-    - what: outline
-      name: pcb_cutout
-    - what: outline
-      name: keywell_wall
-      operation: subtract
+      expand: wall_width - case_fillet + tol
 
   pcb:
     main:
@@ -396,19 +421,65 @@ outlines:
       name: screws
       operation: subtract
 
-  layout_tester:
-    main:
-      what: outline
-      name: pcb
-    keys:
-      what: rectangle
+  # outlines for case gen
+  pcb_cutout:
+    - what: outline
+      name: base_outline
+      expand: tol
+
+  inside_cutout:
+    - what: outline
+      name: pcb_cutout
+    - what: outline
+      name: keywell_wall
+      operation: subtract
+
+  # note this outline is super slow to gen
+  _hotswap:
+    - what: rectangle
+      adjust.shift: [5, 3.75]
+      size: [4.75, 4.65]
+      corner: 0.5
+    - what: rectangle
+      adjust.shift: [9.6 - 2*4.75, 5.95]
+      size: [9.6 - 4.75, 4.65]
+      corner: 0.5
+    - what: rectangle
+      adjust.shift: [5 + 4.75/2, 3.75]
+      size: [2*1.8, 1.8]
+      corner: 0.5
+    - what: rectangle
+      adjust.shift: [-4.75/2, 5.95]
+      size: [2*1.8, 1.8]
+      corner: 0.5
+      expand: 0.75
+      fillet: 0.5
+
+  hotswap:
+    - what: outline
       where:
         - /matrix_.*/
         - /thumbfan_.*/
-      size: [kx - 0.01, ky - 0.01]
-      corner: px
-      bound: false
-      operation: subtract
+      name: _hotswap
+
+  switch_holes:
+    - what: circle
+      where:
+        - /matrix_.*/
+        - /thumbfan_.*/
+      radius: 3.6/2
+    - what: circle
+      where:
+        - /matrix_.*/
+        - /thumbfan_.*/
+      adjust.shift: [5.5, 0]
+      radius: 1.8/2
+    - what: circle
+      where:
+        - /matrix_.*/
+        - /thumbfan_.*/
+      adjust.shift: [-5.5, 0]
+      radius: 1.8/2
 
 pcbs:
   board:
